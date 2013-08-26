@@ -2,6 +2,9 @@ var turtleAnimation;
 
 function gameInit() {
 
+    //init keys
+    init_keys();
+
     //background
     var bg = new createjs.Bitmap(assets.image.background["green-bg"]);
     // stage.addChild(bg);
@@ -15,20 +18,23 @@ function gameInit() {
 
     //turtle sprite
     var turtleSprite = new createjs.SpriteSheet({
-        images: [assets.sprite.people["turtle"]],
-        frames: {width:50, height:75, regX:25, regY:37},
+        images: [assets.sprite.people["turtle"], assets.image.people["turtle_stand"]],
+        frames: {width: 50, height: 75, regX: 25, regY: 37},
         animations: {
-            run:[0,3,"run",3]
+            run: [0, 3, "run", 3],
+            stand: [4, 4, "stand", 3]
         }
     });
-    createjs.SpriteSheetUtils.addFlippedFrames(turtleSprite,true,false,false);
+    //turtle bitmap (standing)
+
+    createjs.SpriteSheetUtils.addFlippedFrames(turtleSprite, true, false, false);
 
     //turtle animation
     turtleAnimation = new createjs.BitmapAnimation(turtleSprite);
     turtleAnimation.gotoAndPlay("run");
 
-    turtleAnimation.name="turtle1";
-    turtleAnimation.direction=90;
+    turtleAnimation.name = "turtle1";
+    turtleAnimation.direction = 90;
     turtleAnimation.vX = 9;
     turtleAnimation.x = 25;
     turtleAnimation.y = 40;
@@ -38,36 +44,59 @@ function gameInit() {
 
     stage.addChild(turtleAnimation);
 
-    createjs.Ticker.addListener(window);
+    createjs.Ticker.addEventListener("tick", tick);
     createjs.Ticker.useRAF = true;
     createjs.Ticker.setFPS(20);
 
 }
 
-function tick() {
-    if (turtleAnimation.x >= canvas.width - 25) {
-        // We've reached the right side of our screen
-        // We need to walk left now to go back to our initial position
-        turtleAnimation.direction = -90;
-        turtleAnimation.gotoAndPlay("run_h");
-    }
+function tick(event) {
 
-    if (turtleAnimation.x < 25) {
-        // We've reached the left side of our screen
-        // We need to walk right now
-        turtleAnimation.direction = 90;
-        turtleAnimation.gotoAndPlay("run");
-    }
+    //keys["right"] XOR keys["left"]
+    if (keys["right"] ^ keys["left"]) {
+        if (keys["right"]) {
+            if (turtleAnimation.currentAnimation !== "run") {
+                turtleAnimation.direction = 90;
+                turtleAnimation.gotoAndPlay("run");
+            }
+            if (turtleAnimation.x < canvas.width - 25) {
+                turtleAnimation.x += turtleAnimation.vX;
+            }
+        } else if (keys["left"]) {
+            if (turtleAnimation.currentAnimation !== "run_h") {
+                turtleAnimation.direction = -90;
+                turtleAnimation.gotoAndPlay("run_h");
+            }
+            if (turtleAnimation.x > 25) {
+                turtleAnimation.x -= turtleAnimation.vX;
+            }
+        }
+    } else {
+        if (turtleAnimation.direction == 90 && turtleAnimation.currentAnimation !== "stand") {
+            turtleAnimation.gotoAndPlay("stand");
+        } else if (turtleAnimation.direction == -90 && turtleAnimation.currentAnimation !== "stand_h") {
+            turtleAnimation.gotoAndPlay("stand_h");
 
-    // Moving the sprite based on the direction & the speed
-    if (turtleAnimation.direction == 90) {
-        turtleAnimation.x += turtleAnimation.vX;
-    }
-    else {
-        turtleAnimation.x -= turtleAnimation.vX;
-    }
+        }
 
+    }
     // update the stage:
     stage.update();
+}
+
+
+var InputHandler = {
+    walkUp: function () {
+
+    },
+    walkDown: function () {
+
+    },
+    walkLeft: function () {
+
+    },
+    walkRight: function () {
+
+    }
 }
 

@@ -33,9 +33,13 @@ function init() {
     var preloadQueue = new createjs.LoadQueue();
 
     var preloadFiles = [
+        {id: "config", src:"cfg/config.json"}
+        ,
         {id: "image.background.green-bg", src: "assets/images/backgrounds/green-bg.jpg"}
         ,
         {id: "image.background.gravel50x50", src: "assets/images/backgrounds/gravel-50x50.png"}
+        ,
+        {id: "image.people.turtle_stand", src: "assets/images/people/turtle-stand.png"}
         ,
         {id: "sprite.people.turtle", src: "assets/sprites/people/turtle.png"}
 
@@ -75,6 +79,9 @@ function init() {
 }
 
 function preloadComplete(event) {
+
+    console.log('Assets Loaded.');
+    console.log(assets);
     //remove loading from stage
     stage.removeAllChildren();
 
