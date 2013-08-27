@@ -13,20 +13,39 @@
     Html5 Not Supported?
 </canvas>
 <br/>
-<input id="resolutionToggle" value="Large" type="button"/>
+
+<form>
+    Width: <input id="resolutionWidth" type="text" value="500"/>
+    Height: <input id="resolutionHeight" type="text" value="300"/>
+    <input id="resolutionToggle" value="Change" type="submit"/>
+</form>
 <script>
     $(function () {
-        $('#gameCanvas').data('scale', 1);
-        $('#resolutionToggle').on('click', function () {
+        //set originals
+        $('#gameCanvas').data('origWidth', 500).data('origHeight', 300);
 
-            var scale = $(this).prop('value') === 'Small' ? 1 : 2;
-            var canvasMult = $(this).prop('value') === 'Small' ? 0.5 : 2;
+        $('#resolutionToggle').on('click', function (e) {
+            e.preventDefault();
 
-            var gc = $('#gameCanvas');
-            gc.prop('width', gc.prop('width') * canvasMult).prop('height', gc.prop('height') * canvasMult).data('scale', scale);
-            $(this).prop('value', scale === 1 ? 'Large' : 'Small');
+            var gc = $('#gameCanvas'),
+                    newWidth = $('#resolutionWidth').val(),
+                    newHeight = $('#resolutionHeight').val(),
+                    origWidth = gc.data('origWidth'),
+                    origHeight = gc.data('origHeight');
 
-            rescale(scale);
+            if (isNormalInteger(newWidth) && isNormalInteger(newHeight)) {
+
+
+                var scaleX = newWidth / origWidth,
+                        scaleY = newHeight / origHeight;
+
+                gc.prop('width', newWidth).prop('height', newHeight);
+
+                rescale(scaleX, scaleY);
+            } else {
+                $('#resolutionWidth').val(gc.prop('width'));
+                $('#resolutionHeight').val(gc.prop('height'));
+            }
         });
     })
 </script>

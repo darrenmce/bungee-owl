@@ -7,5 +7,9 @@
     },
     "gameplay" : {
         "fps": 60
+    },
+    "resolution": {
+        "width": 500,
+        "height": 300
     }
 }

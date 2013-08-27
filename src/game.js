@@ -1,5 +1,4 @@
 var animations = {};
-var bitmaps = {};
 
 function gameInit() {
 
@@ -8,17 +7,14 @@ function gameInit() {
 
     //background
     var bg = new createjs.Bitmap(assets.image.background["green-bg"]);
-    setObjectProps(bg, {scale: 1, scaleX: 0.5, scaleY: 0.5});
-    bitmaps["bg"] = bg;
+    setObjectProps(bg, {scaleX: 0.5, scaleY: 0.5});
 
     stage.addChild(bg);
 
     //add a couple gravel tiles
     for (i = 0; i < 5; i++) {
         var gravel = new createjs.Bitmap(assets.image.background["gravel50x50"]);
-        setObjectProps(gravel, {scale: 1});
         gravel.setTransform(50 * i, 0);
-        bitmaps["gravel" + i] = gravel;
         stage.addChild(gravel);
     }
 
@@ -36,16 +32,13 @@ function gameInit() {
 
     //turtle animation
     var turtleAnimation = new createjs.BitmapAnimation(turtleSprite);
-
     //initialize
     turtleAnimation.gotoAndPlay("stand");
     setObjectProps(turtleAnimation, {
-            scale: 1, speedX: 0.3, speedY: 0.2, padX: 25, padY: 75, x: 25, y: canvas.height}
+            speedX: 0.3, speedY: 0.2, padX: turtleSprite._frameWidth/2, padY: turtleSprite._frameHeight, x: turtleSprite._frameWidth/2, y: assets.config.resolution.height
+        }
     );
-    //set rescale function
-    turtleAnimation.rescale = function (scaleFactor) {
-        scaleObjectProps(scaleFactor, this, ['scaleX', 'scaleY', 'x', 'y', 'padX', 'padY', 'speedX', 'speedY']);
-    }
+    console.log(turtleAnimation);
 
     //add animation to global
     animations.turtleAnimation = turtleAnimation;
@@ -61,27 +54,9 @@ function gameInit() {
 
 }
 
-function rescale(scale) {
-    //rescale all animations if applicable
-    $.each([animations, bitmaps], function () {
-
-        $.each(this, function () {
-            //determine new scale factor
-            var scaleFactor = scale / this.scale;
-            //set new scale
-            this.scale = scale;
-
-            if (typeof this.rescale == 'function') {
-                //call specialized rescale if necessary
-                this.rescale(scaleFactor);
-            } else {
-                //default rescale
-                scaleObjectProps(scaleFactor, this, ['scaleX', 'scaleY', 'x', 'y']);
-            }
-        });
-
-    });
-
+function rescale(scalex, scaley) {
+    stage.scaleX = scalex;
+    stage.scaleY = scaley;
 }
 
 function turtle(e) {
@@ -93,15 +68,15 @@ function turtle(e) {
             if (anim.currentAnimation !== "run") {
                 anim.gotoAndPlay("run");
             }
-            if (anim.x < canvas.width - anim.padX) {
-                anim.x += anim.speedX * e.delta;
+            if (anim.x < assets.config.resolution.width - anim.padX) {
+                anim.x = Math.min(anim.x + anim.speedX * e.delta, assets.config.resolution.width - anim.padX);
             }
         } else if (keys["left"]) {
             if (anim.currentAnimation !== "run_h") {
                 anim.gotoAndPlay("run_h");
             }
             if (anim.x > anim.padX) {
-                anim.x -= anim.speedX * e.delta;
+                anim.x = Math.max(anim.x-anim.speedX * e.delta, anim.padX);
             }
         }
     }
@@ -109,11 +84,11 @@ function turtle(e) {
     if (keys["up"] ^ keys["down"]) {
         if (keys["up"]) {
             if (anim.y > anim.padY) {
-                anim.y -= anim.speedY * e.delta;
+                anim.y = Math.max(anim.y - anim.speedY * e.delta, anim.padY);
             }
         } else if (keys["down"]) {
-            if (anim.y < canvas.height) {
-                anim.y += anim.speedY * e.delta;
+            if (anim.y < assets.config.resolution.height) {
+                anim.y = Math.min(anim.y + anim.speedY * e.delta, assets.config.resolution.height);
             }
         }
     }
