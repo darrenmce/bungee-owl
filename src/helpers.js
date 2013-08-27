@@ -4,7 +4,7 @@ scaleObjectProps = function(factor,object,props) {
         object[this] *= factor;
     });;
 }
-
+//sets properties based on json
 setObjectProps = function(object,props) {
     $.each(props, function(key, value) {
         object[key] = value;
