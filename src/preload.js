@@ -6,7 +6,7 @@ function init() {
     //setup stage
     stage = new createjs.Stage(canvas);
     //setup loading screen
-    var bar = {barx: 50, bary: 100, barw: 400, barh: 15, padx: 10, pady: 5, colour: "black", progress: 5};
+    var bar = {barx: 50, bary: 100, barw: 400, barh: 15, padx: 10, pady: 5, colour: "white", progress: 5};
 
 
     //set the loading bar text
@@ -28,53 +28,42 @@ function init() {
 
     stage.update();
 
+    //load manifest and preload
+    $.getJSON('cfg/preload_manifest.json', function (manifest) {
 
-    //Preload Assets
-    var preloadQueue = new createjs.LoadQueue();
 
-    var preloadFiles = [
-        {id: "config", src:"cfg/config.json"}
-        ,
-        {id: "image.background.green-bg", src: "assets/images/backgrounds/green-bg.jpg"}
-        ,
-        {id: "image.background.gravel50x50", src: "assets/images/backgrounds/gravel-50x50.png"}
-        ,
-        {id: "image.people.turtle_stand", src: "assets/images/people/turtle-stand.png"}
-        ,
-        {id: "sprite.people.turtle", src: "assets/sprites/people/turtle.png"}
+        //Preload Assets
+        var preloadQueue = new createjs.LoadQueue();
 
-    ];
+        preloadQueue.addEventListener("complete", preloadComplete);
+        preloadQueue.addEventListener("fileload", function (event) {
+            var pathList = (event.item.id).split('.');
+            var assetId = pathList.pop();
 
-    preloadQueue.addEventListener("complete", function (event) {
-        preloadComplete(event);
-    });
-    preloadQueue.addEventListener("fileload", function (event) {
-        var pathList = (event.item.id).split('.');
-        var assetId = pathList.pop();
+            //load assets into {assets}
+            var assetPath = assets;
+            pathList.forEach(function (i) {
+                if (typeof assetPath[i] !== "undefined") {
+                    assetPath = assetPath[i];
+                } else {
+                    assetPath[i] = {};
+                    assetPath = assetPath[i];
+                }
+            });
+            assetPath[assetId] = event.result;
 
-        //load assets into
-        var assetPath = assets;
-        pathList.forEach(function (i) {
-            if (typeof assetPath[i] !== "undefined") {
-                assetPath = assetPath[i];
-            } else {
-                assetPath[i] = {};
-                assetPath = assetPath[i];
-            }
+            progressbar.graphics.clear();
+            progressbar.graphics.f(bar.colour).rect(bar.barx, bar.bary, bar.progress += bar.progressInterval, bar.barh);
+
+            stage.update();
         });
-        assetPath[assetId] = event.result;
 
-        progressbar.graphics.clear();
-        progressbar.graphics.f(bar.colour).rect(bar.barx, bar.bary, bar.progress += bar.progressInterval, bar.barh);
+        preloadQueue.loadManifest(manifest);
 
-        stage.update();
+        //set progress interval
+        bar.progressInterval = parseInt((bar.barw - 5) * (1 / manifest.length), 10);
+
     });
-
-    preloadQueue.loadManifest(preloadFiles);
-
-    //set progress interval
-    bar.progressInterval = parseInt((bar.barw - 5) * (1 / preloadFiles.length), 10);
-
 
 }
 

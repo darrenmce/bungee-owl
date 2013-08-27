@@ -8,8 +8,27 @@
     <script src="src/game.js"></script>
 </head>
 <body onLoad="init();">
-    <canvas id="gameCanvas" width="500" height="300">
-        Html5 Not Supported?
-    </canvas>
+<canvas id="gameCanvas" width="500" height="300" style="background-color: black;">
+    Html5 Not Supported?
+</canvas>  <br/>
+<input id="resolutionToggle" value="Large" type="button"/>
+<script>
+    $(function () {
+        $('#gameCanvas').data('size',1);
+        $('#resolutionToggle').on('click', function () {
+            var gc = $('#gameCanvas');
+            var oldsize = gc.data('size');
+
+            if (gc.data('size') == 1) {
+                gc.prop('width', gc.prop('width') * 2).prop('height', gc.prop('height') * 2).data('size',2);
+                $(this).prop('value', 'Small');
+            } else {
+                gc.prop('width', gc.prop('width') / 2).prop('height', gc.prop('height') / 2).data('size',1);
+                $(this).prop('value', 'Large');
+            }
+            rescale(oldsize,gc.data('size'));
+        });
+    })
+</script>
 </body>
 </html>

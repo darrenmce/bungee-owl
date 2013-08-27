@@ -1,4 +1,4 @@
-var turtleAnimation;
+var animations = {};
 
 function gameInit() {
 
@@ -7,7 +7,7 @@ function gameInit() {
 
     //background
     var bg = new createjs.Bitmap(assets.image.background["green-bg"]);
-    // stage.addChild(bg);
+    stage.addChild(bg);
 
     //add a couple gravel tiles
     for (i = 0; i < 5; i++) {
@@ -19,63 +19,75 @@ function gameInit() {
     //turtle sprite
     var turtleSprite = new createjs.SpriteSheet({
         images: [assets.sprite.people["turtle"], assets.image.people["turtle_stand"]],
-        frames: {width: 50, height: 75, regX: 25, regY: 37},
+        frames: {width: 50, height: 75, regX: 25, regY: 75},
         animations: {
-            run: [0, 3, "run", 3],
-            stand: [4, 4, "stand", 3]
+            run: [0, 3, "run", assets.config.gameplay.fps/15],
+            stand: [4, 4, "stand", assets.config.gameplay.fps/15]
         }
     });
-    //turtle bitmap (standing)
-
+    //create flipped sprite animations as <animation>_h
     createjs.SpriteSheetUtils.addFlippedFrames(turtleSprite, true, false, false);
 
     //turtle animation
     turtleAnimation = new createjs.BitmapAnimation(turtleSprite);
-    turtleAnimation.gotoAndPlay("run");
 
-    turtleAnimation.name = "turtle1";
-    turtleAnimation.direction = 90;
-    turtleAnimation.vX = 9;
+    //initialize
+    turtleAnimation.gotoAndPlay("stand");
+    turtleAnimation.speed = 0.3;
     turtleAnimation.x = 25;
-    turtleAnimation.y = 40;
+    turtleAnimation.y = canvas.height;
+    turtleAnimation.scale = $(canvas).data('size');
+    turtleAnimation.rescale = function (scale) {
+        this.x *= scale;
+        this.y *= scale;
+        this.scale = scale;
+    }
 
-
-    turtleAnimation.currentFrame = 0;
+    //add animation to global
+    animations.turtleAnimation = turtleAnimation;
 
     stage.addChild(turtleAnimation);
 
     createjs.Ticker.addEventListener("tick", tick);
     createjs.Ticker.useRAF = true;
-    createjs.Ticker.setFPS(20);
+    createjs.Ticker.setFPS(assets.config.gameplay.fps);
 
 }
 
-function tick(event) {
+function rescale(oldscale,scale) {
+    //rescale all animations if applicable
+    $.each(animations, function() {
+        if (typeof this.rescale == 'function') {
+            this.rescale(scale/oldscale);
+        }
+    });
+}
 
-    //keys["right"] XOR keys["left"]
+function tick(e) {
+    var anim = animations.turtleAnimation;
+
+    //bit-XOR
     if (keys["right"] ^ keys["left"]) {
         if (keys["right"]) {
-            if (turtleAnimation.currentAnimation !== "run") {
-                turtleAnimation.direction = 90;
-                turtleAnimation.gotoAndPlay("run");
+            if (anim.currentAnimation !== "run") {
+                anim.gotoAndPlay("run");
             }
-            if (turtleAnimation.x < canvas.width - 25) {
-                turtleAnimation.x += turtleAnimation.vX;
+            if (anim.x < canvas.width - 25) {
+                anim.x += anim.speed * e.delta;
             }
         } else if (keys["left"]) {
-            if (turtleAnimation.currentAnimation !== "run_h") {
-                turtleAnimation.direction = -90;
-                turtleAnimation.gotoAndPlay("run_h");
+            if (anim.currentAnimation !== "run_h") {
+                anim.gotoAndPlay("run_h");
             }
-            if (turtleAnimation.x > 25) {
-                turtleAnimation.x -= turtleAnimation.vX;
+            if (anim.x > 25) {
+                anim.x -= anim.speed * e.delta;
             }
         }
     } else {
-        if (turtleAnimation.direction == 90 && turtleAnimation.currentAnimation !== "stand") {
-            turtleAnimation.gotoAndPlay("stand");
-        } else if (turtleAnimation.direction == -90 && turtleAnimation.currentAnimation !== "stand_h") {
-            turtleAnimation.gotoAndPlay("stand_h");
+        if (anim.currentAnimation === "run") {
+            anim.gotoAndPlay("stand");
+        } else if (anim.currentAnimation === "run_h") {
+            anim.gotoAndPlay("stand_h");
 
         }
 
