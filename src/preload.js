@@ -1,4 +1,6 @@
-var stage, assets = {}, canvas;
+var stage,
+    canvas,
+    assets = {};
 
 function init() {
     //init canvas
