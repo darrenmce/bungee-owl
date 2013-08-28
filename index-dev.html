@@ -35,7 +35,6 @@
 
             if (isNormalInteger(newWidth) && isNormalInteger(newHeight)) {
 
-
                 var scaleX = newWidth / origWidth,
                         scaleY = newHeight / origHeight;
 
@@ -43,6 +42,7 @@
 
                 rescale(scaleX, scaleY);
             } else {
+                //revert
                 $('#resolutionWidth').val(gc.prop('width'));
                 $('#resolutionHeight').val(gc.prop('height'));
             }
