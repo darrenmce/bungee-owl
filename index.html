@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <script src="//code.createjs.com/createjs-2013.05.14.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="dist/game.min.js"></script>
+</head>
+<body onLoad="init();">
+<a href="https://github.com/darrenmce/bungee-owl"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+<canvas id="gameCanvas" width="500" height="300" style="background-color: black;">
+    Html5 Not Supported?
+</canvas>
+<br/>
+
+<form>
+    Width: <input id="resolutionWidth" type="text" value="500"/>
+    Height: <input id="resolutionHeight" type="text" value="300"/>
+    <input id="resolutionToggle" value="Change" type="submit"/>
+</form>
+<script>
+    $(function () {
+        //set originals
+        $('#gameCanvas').data('origWidth', 500).data('origHeight', 300);
+
+        $('#resolutionToggle').on('click', function (e) {
+            e.preventDefault();
+
+            var gc = $('#gameCanvas'),
+                    newWidth = $('#resolutionWidth').val(),
+                    newHeight = $('#resolutionHeight').val(),
+                    origWidth = gc.data('origWidth'),
+                    origHeight = gc.data('origHeight');
+
+            if (isNormalInteger(newWidth) && isNormalInteger(newHeight)) {
+
+                var scaleX = newWidth / origWidth,
+                        scaleY = newHeight / origHeight;
+
+                gc.prop('width', newWidth).prop('height', newHeight);
+
+                rescale(scaleX, scaleY);
+            } else {
+                //revert
+                $('#resolutionWidth').val(gc.prop('width'));
+                $('#resolutionHeight').val(gc.prop('height'));
+            }
+        });
+    })
+</script>
+</body>
+</html>
