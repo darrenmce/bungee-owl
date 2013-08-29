@@ -1,4 +1,7 @@
 #! /bin/bash
 # script to pull files from master branch
+_now=$(date +"%m_%d_%Y")
 git checkout master -- index.html assets/ cfg/ dist/
+git commit -a -m "Update From Master: $_now"
+git push
 
