@@ -1,0 +1,4 @@
+#! /bin/bash
+# script to pull files from master branch
+git checkout master -- index.html assets/ cfg/ dist/
+
